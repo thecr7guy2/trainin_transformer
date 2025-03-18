@@ -1,0 +1,5 @@
+datasets==3.4.0
+PyYAML==6.0.2a
+scikit_learn==1.6.1
+torch==2.6.0+cu124
+torchinfo==1.8.0
