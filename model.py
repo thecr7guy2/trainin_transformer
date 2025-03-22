@@ -85,7 +85,7 @@ class MHA(torch.nn.Module):
         attention_scores = (qprime @ kprime.transpose(-2, -1)) / math.sqrt(dk)
 
         if mask is not None:
-            attention_scores.masked_fill_(mask == 0, -1e9)
+            attention_scores.masked_fill_(mask == 0, -1e4)
 
         attention_scores = attention_scores.softmax(dim=-1)
         # why last dim ?
@@ -241,17 +241,6 @@ class Transformer(torch.nn.Module):
     def project(self, x):
         x = self.projection_layer(x)
         return x
-
-    def forward(self, src, tgt, src_mask, tgt_mask):
-        """
-        Standard forward: encode the src, decode with the tgt,
-        and project to vocabulary logits.
-        """
-        enc_output = self.encode(src, src_mask)
-        dec_output = self.decode(tgt, enc_output, src_mask, tgt_mask)
-        logits = self.project(dec_output)
-        return logits
-
 
 def build_transformer(
     src_vocab_size,

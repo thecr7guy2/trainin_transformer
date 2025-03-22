@@ -3,16 +3,19 @@ from model import build_transformer
 from util import create_resources
 import yaml
 import torch
+from pathlib import Path
 
+
+
+
+
+with open("config.yaml", "r") as file:
+    config = yaml.safe_load(file)
 
 
 train_dataloader,valid_dataloader,test_dataloader,tokenizer_src,tokenizer_tgt = create_resources()
 src_vocab_size = tokenizer_src.get_vocab_size()
 tgt_vocab_size = tokenizer_src.get_vocab_size()
-
-
-with open("config.yaml", "r") as file:
-    config = yaml.safe_load(file)
 
 model = build_transformer(
     src_vocab_size,
@@ -25,20 +28,56 @@ model = build_transformer(
 )
 
 batch_size = config["batch_size"]
+num_epochs = config["epochs"] if "epochs" in config else 10
 
 
-# # Fake token IDs
-src = torch.randint(0, 30000, (batch_size, config["seq_len"]), dtype=torch.int64)
-tgt = torch.randint(0, 30000, (batch_size, config["seq_len"]), dtype=torch.int64)
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = model.to(device)
 
-# # Example binary masks (1=keep, 0=mask out); shape [batch_size, 1, seq_len, seq_len]
-src_mask = torch.ones(batch_size, 1, config["seq_len"], config["seq_len"], dtype=torch.bool)
-tgt_mask = torch.ones(batch_size, 1, config["seq_len"], config["seq_len"], dtype=torch.bool)
+criterion = loss_fn = torch.nn.CrossEntropyLoss(ignore_index=tokenizer_src.token_to_id('[PAD]'), label_smoothing=0.1).to(device) 
+optimizer = torch.optim.Adam(model.parameters(), lr=config["learning_rate"],eps=1e-9)
 
 
-summary(
-    model,
-    input_data=(src, tgt, src_mask, tgt_mask),
-    col_names=("input_size", "output_size", "num_params", "trainable"),
-    depth=4
-)
+def save_checkpoint(epoch, model, optimizer, path):
+    torch.save({
+        "epoch": epoch,
+        "model_state_dict": model.state_dict(),
+        "optimizer_state_dict": optimizer.state_dict(),
+    }, path)
+    print(f"Checkpoint saved at epoch {epoch} to {path}")
+
+
+def load_checkpoint(path, model, optimizer=None, map_location="cpu"):
+    checkpoint = torch.load(path, map_location=map_location)
+    model.load_state_dict(checkpoint["model_state_dict"])
+    if optimizer and "optimizer_state_dict" in checkpoint:
+        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+    start_epoch = checkpoint.get("epoch", 0)
+    print(f"Loaded checkpoint from epoch {start_epoch}")
+    return start_epoch
+
+
+def train_one_epoch(device):
+    model.train()
+    running_loss = 0.0
+
+
+
+
+def train_model(model):
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    if (device == 'cuda'):
+        print(f"Device name: {torch.cuda.get_device_name(device.index)}")
+        print(f"Device memory: {torch.cuda.get_device_properties(device.index).total_memory / 1024 ** 3} GB")
+    
+    Path(config["model_folder"]).mkdir(parents=True, exist_ok=True)
+    train_dataloader,valid_dataloader,test_dataloader,tokenizer_src,tokenizer_tgt = create_resources()
+
+    
+
+
+    
+
+
+
+

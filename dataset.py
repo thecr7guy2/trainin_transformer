@@ -59,7 +59,7 @@ class English2HindiDataset(Dataset):
 
         # -2 Because of the <SOS> and <EOS>
 
-        dec_num_padding_tokens = self.seq_len = len(dec_input_tokens) - 1
+        dec_num_padding_tokens = self.seq_len - len(dec_input_tokens) - 1
 
         # since the input to the decoder will only consist of <SOS>
         # the target label will have the <EOS>
@@ -94,7 +94,7 @@ class English2HindiDataset(Dataset):
                 torch.tensor(dec_input_tokens, dtype=torch.int64),
                 self.eos_token,
                 torch.tensor(
-                    [self.pad_token] * dec_num_padding_tokens, dtype=torch.int64
+                    [self.pad_token]* dec_num_padding_tokens, dtype=torch.int64
                 ),
             ],
             dim=0,
@@ -102,8 +102,8 @@ class English2HindiDataset(Dataset):
 
         # Label is always tgt language so we give the the decoder tokens
 
-        encoder_mask = (encoder_input != self.pad_token).unsqueeze(0).unsqueeze(0).int(), # (1, 1, seq_len)
-        decoder_mask= (decoder_input != self.pad_token).unsqueeze(0).int() & self.causal_mask(decoder_input.size(0)), # (1, seq_len) & (1, seq_len, seq_len),
+        encoder_mask = (encoder_input != self.pad_token).unsqueeze(0).unsqueeze(0).int() # (1, 1, seq_len)
+        decoder_mask= (decoder_input != self.pad_token).unsqueeze(0).int() & self.causal_mask(decoder_input.size(0)) # (1, seq_len) & (1, seq_len, seq_len),
 
         ### didnt understand this at all.
 

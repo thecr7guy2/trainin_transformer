@@ -1,12 +1,15 @@
+batch_size: 8
+d_model: 512
 dataset_path: data/english2hindi_data.json
+epochs: 5
+learning_rate: 0.0003
+model_directory: models
+num_enc_dec_blocks: 6
+num_of_heads: 8
+resume_training: true
 seq_len: 281
 src_lang: en_text
 src_tokenizer_file: tokenizers/tokenizers_eng.json
 tgt_lang: hi_text
 tgt_tokenizer_file: tokenizers/tokenizers_hindi.json
-num_enc_dec_blocks: 6
-num_of_heads: 8
-d_model : 512
-batch_size : 10
-epochs : 20
-learning_rate : 3e-4
+warmup_steps: 4000

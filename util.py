@@ -222,15 +222,13 @@ def create_resources():
     )
 
 
-    train_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=False)
-    valid_dataloader = DataLoader(valid_dataset, batch_size=1, shuffle=True)
-    test_dataloader = DataLoader(test_dataset, batch_size=1, shuffle=True)
+    train_dataloader = DataLoader(train_dataset, batch_size=config["batch_size"], shuffle=False)
+    valid_dataloader = DataLoader(valid_dataset, batch_size=config["batch_size"],shuffle=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=config["batch_size"],shuffle=True)
 
     return train_dataloader,valid_dataloader,test_dataloader,tokenizer_src,tokenizer_tgt
 
 
 
 
-
-
-
+create_resources()
